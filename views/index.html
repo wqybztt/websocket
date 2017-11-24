@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+
+{% block stylesheet %}
+{% parent %}
+{% endblock %}
+
+{% block body %}
+{% parent %}
+<h1>游客页面</h1>
+<ul id="list"></ul>
+{% endblock %}
+
+{% block script %}
+{% parent %}
+<script type="text/javascript">
+var uuid = +new Date()+'-'+_.random(100000,999999);
+var areas = _.range(37,378);
+
+//连接ws服务器
+var ws = new WebSocket('ws://localhost:3000/');
+
+ws.onopen = function(){
+    console.log('连接成功');
+    
+    ws.onmessage = function(event){
+        var res = event.data ? JSON.parse(event.data) : {type:'unknow',data:null};
+
+        if(res.type==='send_msg'){//推送消息
+            $('#list').append('<li>'+ JSON.stringify(res.data) +'</li>');
+        }
+    }
+
+    //发送用户信息
+    var data = {area:(_.shuffle(areas))[0]};
+    ws.send(stringifyData('login',data));
+}
+ws.onclose = function(){
+    console.log('连接关闭')
+}
+ws.onerror = function(err){
+    console.log(err);
+}
+
+function stringifyData(type,data){//字符串话数据
+    var auth = {uuid:uuid};
+    return JSON.stringify({type:type,data:data,auth:auth});
+}
+</script>
+{% endblock %}

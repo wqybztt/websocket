@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <link rel="bookmark" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>{{ title }}</title>
+    {% block stylesheet %}
+    <link type="text/css" rel="stylesheet" href="/lib/bootstrap/v3/css/bootstrap.min.css"/>
+    {% endblock %}
+</head>
+<body>
+{% block body %}{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="/lib/lodash/lodash.min.js"></script>
+<script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+{% endblock %}
+</body>
+</html>

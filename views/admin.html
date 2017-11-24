@@ -1,0 +1,76 @@
+{% extends 'layout.html' %}
+
+{% block stylesheet %}
+{% parent %}
+{% endblock %}
+
+{% block body %}
+{% parent %}
+<h1>管理员页面</h1>
+<p>在线用户数：<strong id="num"></strong></p>
+<button class="btn" id="send">推送消息</button>
+
+<ul id="list">
+
+</ul>
+
+{% endblock %}
+
+{% block script %}
+{% parent %}
+<script type="text/javascript">
+var uuid = +new Date()+'-'+_.random(100000,999999);
+var token = +new Date()+'-'+_.random(100000,999999);
+var areas = _.range(37,378);
+var moneys = [1,2,3,4];
+var inds = [7,8,9,10,11,12,17,18];
+
+
+//连接ws服务器
+var ws = new WebSocket('ws://localhost:3000/');
+
+ws.onopen = function(){
+    console.log('连接成功');
+
+    //发送
+    ws.send(stringifyData('login',''));
+
+    ws.onmessage = function(event){
+        var res = event.data ? JSON.parse(event.data) :  {type:'unknow',data:null};
+        if(res.type === 'send_msg_suc'){//消息推送成功
+            $('#'+res.data.id+' strong').html(res.data.num);
+        }else if(res.type === 'user_count'){//在线用户数统计
+            $('#num').html(res.data.toal);
+        }
+    }
+}
+ws.onclose = function(){
+    console.log('连接关闭')
+}
+ws.onerror = function(err){
+    console.log(err);
+}
+
+function stringifyData(type,data){//字符串话数据
+    var auth = {uuid:uuid,token:token};
+    return JSON.stringify({type:type,data:data,auth:auth});
+}
+
+$('#send').click(function(){
+
+    var data = {};
+    data.id = _.random(100000,999999);
+    data.title = '推送消息标题-' + data.id;
+    data.url = 'https://www.baidu.com/';
+    data.type = _.random(1,3); //消息类型
+
+    $('#list').append('<li id="'+data.id+'">'+JSON.stringify(data)+' <strong></strong></li>');
+
+    data.moneys = _.orderBy( (_.shuffle(moneys)).slice(0,_.random(1,moneys.length)) );//金额类型
+    data.inds = _.orderBy( (_.shuffle(inds)).slice(0,_.random(1,inds.length)) );//行业类型
+    data.areas = _.orderBy( (_.shuffle(areas)).slice(0,_.random(1,parseInt(areas.length/3))) );//地域类型
+    
+    ws.send(stringifyData('send_msg',data));
+});
+</script>
+{% endblock %}
